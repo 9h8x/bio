@@ -1,0 +1,57 @@
+---
+import { Icon } from "astro-icon/components";
+
+const socialLinks = [
+  {
+    icon: "mdi:discord",
+    href: "https://discord.com/users/900035490797994035",
+    tooltip: "Discord",
+  },
+  {
+    icon: "mdi:github",
+    href: "https://github.com/9h8x/",
+    tooltip: "GitHub",
+  },
+  {
+    icon: "mdi:instagram",
+    href: "https://instagram.com/thisboygotagun/",
+    tooltip: "Instagram",
+  },
+];
+---
+
+<div class="social-links flex gap-4 sm:gap-6 text-gray-400">
+  {
+    socialLinks.map(({ icon, href, tooltip }) => (
+      <a
+        href={href}
+        class="social-link relative group hover:text-white transition-colors p-2"
+        aria-label={tooltip}
+      >
+        <Icon name={icon} class="w-5 h-5 sm:w-6 sm:h-6" />
+        <span class="tooltip absolute top-full left-1/2 transform -translate-x-1/2 -translate-y-2 px-2 py-1 text-xs bg-black text-white rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none">
+          {tooltip}
+        </span>
+      </a>
+    ))
+  }
+</div>
+
+<style>
+  .tooltip::after {
+    content: "";
+    position: absolute;
+    top: 0%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 4px;
+    border-style: solid;
+    border-color: white transparent transparent transparent;
+  }
+
+  @media (hover: none) {
+    .tooltip {
+      display: none;
+    }
+  }
+</style>

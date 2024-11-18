@@ -1,0 +1,30 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Card from "../components/Card.astro";
+import CursorEffect from "../components/CursorEffect.astro";
+import ParticleCanvas from "../components/ParticleCanvas.astro";
+import EntryOverlay from "../components/EntryOverlay.astro";
+---
+
+<Layout title="Portfolio">
+  <EntryOverlay />
+  <main
+    class="min-h-screen bg-black text-white flex items-center justify-center relative overflow-hidden p-4"
+  >
+    <div class="sparkles absolute inset-0 pointer-events-none"></div>
+    <ParticleCanvas />
+    <Card name="9h8x" url="https://jns.net.ar" />
+  </main>
+  <CursorEffect />
+</Layout>
+
+<style>
+  .sparkles {
+    background-image: radial-gradient(
+      circle,
+      rgba(255, 255, 255, 0.1) 1px,
+      transparent 1px
+    );
+    background-size: 50px 50px;
+  }
+</style>

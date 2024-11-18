@@ -1,0 +1,27 @@
+---
+
+---
+
+<div class="typewriter-container text-sm sm:text-base">
+  <span id="typed-text"></span>
+</div>
+
+<script>
+  import Typed from "typed.js";
+
+  new Typed("#typed-text", {
+    strings: ["Frontent", "Backend", "Astro, JS, Python"],
+    typeSpeed: 50,
+    backSpeed: 30,
+    loop: true,
+    backDelay: 1500,
+    cursorChar: "|",
+  });
+</script>
+
+<style>
+  .typewriter-container {
+    min-height: 1.5em;
+    text-align: center;
+  }
+</style>

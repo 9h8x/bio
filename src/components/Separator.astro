@@ -1,0 +1,52 @@
+---
+interface Props {
+  text?: string;
+}
+
+const { text } = Astro.props;
+---
+
+<div class="separator">
+  {text && (
+    <div class="separator-content">
+      <span class="line"></span>
+      <span class="text">{text}</span>
+      <span class="line"></span>
+    </div>
+  )}
+</div>
+
+<style>
+  .separator {
+    width: 100%;
+    padding: 1rem 0;
+  }
+
+  .separator-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+  }
+
+  .line {
+    height: 1px;
+    width: 100%;
+    max-width: 6rem;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.3) 50%,
+      transparent
+    );
+  }
+
+  .text {
+    color: rgba(255, 255, 255, 0.5);
+    font-family: Consolas, monaco, monospace;
+    font-size: 0.875rem;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+    text-transform: uppercase;
+  }
+</style>

@@ -1,0 +1,244 @@
+---
+
+---
+
+<div id="cursor-container">
+  <div id="cursor-star" class="cursor-star"></div>
+  <div id="cursor-glow" class="cursor-glow"></div>
+</div>
+<div id="sparkles-container"></div>
+
+<script>
+  class Sparkle {
+    constructor(x, y, isMoving) {
+      this.element = document.createElement("div");
+      this.element.className = "sparkle";
+      document.getElementById("sparkles-container").appendChild(this.element);
+
+      this.x = x;
+      this.y = y;
+      this.size = Math.random() * 3 + 1;
+      this.speedX = (Math.random() - 0.5) * 0.8; // Reduced horizontal movement
+      this.speedY = Math.random() * 0.8 + 0.3; // More consistent fall speed
+      this.life = 1;
+      this.rotation = Math.random() * 360;
+      this.rotationSpeed = (Math.random() - 0.5) * 2;
+      this.hue = Math.random() * 60 - 30;
+    }
+
+    update() {
+      this.life -= 0.006; // Slower fade
+      this.x += this.speedX * 0.5;
+      this.y += this.speedY * 0.5;
+      this.speedY += 0.02; // Gentler acceleration
+      this.rotation += this.rotationSpeed;
+
+      if (this.life <= 0 || this.y > window.innerHeight + 100) {
+        this.element.remove();
+        return false;
+      }
+
+      const scale = this.life * this.size;
+      const glow = `0 0 ${scale * 3}px rgba(255,255,255,${this.life * 0.7})`;
+      const color = `hsl(${60 + this.hue}, 100%, ${90 + this.life * 10}%)`;
+
+      this.element.style.transform = `translate(${this.x}px, ${this.y}px) scale(${scale}) rotate(${this.rotation}deg)`;
+      this.element.style.opacity = this.life;
+      this.element.style.boxShadow = glow;
+      this.element.style.backgroundColor = color;
+
+      return true;
+    }
+  }
+
+  class CursorEffect {
+    constructor() {
+      this.cursorContainer = document.getElementById("cursor-container");
+      this.cursorStar = document.getElementById("cursor-star");
+      this.cursorGlow = document.getElementById("cursor-glow");
+      this.sparkles = [];
+      this.maxSparkles = 200; // Increased max sparkles
+      this.lastSparkleTime = 0;
+      this.sparkleInterval = 100; // More frequent sparkle creation
+      this.rotation = 0;
+      this.mouseX = window.innerWidth / 2;
+      this.mouseY = window.innerHeight / 2;
+      this.cursorX = this.mouseX;
+      this.cursorY = this.mouseY;
+      this.followSpeed = 0.2; // Adjust this value to change cursor following speed (0.01 to 0.1)
+      this.isMoving = false;
+      this.moveTimeout = null;
+
+      this.init();
+    }
+
+    init() {
+      document.addEventListener("mousemove", (e) => {
+        this.mouseX = e.clientX;
+        this.mouseY = e.clientY;
+        this.isMoving = true;
+
+        clearTimeout(this.moveTimeout);
+        this.moveTimeout = setTimeout(() => {
+          this.isMoving = false;
+        }, 100);
+      });
+
+      this.animate();
+    }
+
+    createSparkles() {
+      const now = Date.now();
+      if (now - this.lastSparkleTime > this.sparkleInterval) {
+        const numSparkles = this.isMoving ? 3 : 1;
+        for (let i = 0; i < numSparkles; i++) {
+          if (this.sparkles.length < this.maxSparkles) {
+            const offsetX = (Math.random() - 0.5) * 10;
+            const offsetY = (Math.random() - 0.5) * 10;
+            this.sparkles.push(
+              new Sparkle(
+                this.cursorX + offsetX,
+                this.cursorY + offsetY,
+                this.isMoving
+              )
+            );
+          }
+        }
+        this.lastSparkleTime = now;
+      }
+    }
+
+    animate() {
+      // Smooth cursor movement with adjustable follow speed
+      this.cursorX += (this.mouseX - this.cursorX) * this.followSpeed;
+      this.cursorY += (this.mouseY - this.cursorY) * this.followSpeed;
+
+      // Slower rotation
+      this.rotation += 0.2;
+
+      this.cursorContainer.style.transform = `translate(${this.cursorX}px, ${this.cursorY}px)`;
+      this.cursorStar.style.transform = `rotate(${this.rotation}deg)`;
+
+      const glowIntensity = (Math.sin(Date.now() * 0.002) + 1) * 0.5;
+      this.cursorGlow.style.opacity = 0.4 + glowIntensity * 0.4;
+      this.cursorGlow.style.transform = `scale(${1 + glowIntensity * 0.3})`;
+
+      // Create sparkles continuously
+      this.createSparkles();
+
+      // Update existing sparkles
+      for (let i = this.sparkles.length - 1; i >= 0; i--) {
+        if (!this.sparkles[i].update()) {
+          this.sparkles.splice(i, 1);
+        }
+      }
+
+      requestAnimationFrame(() => this.animate());
+    }
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => new CursorEffect());
+  } else {
+    new CursorEffect();
+  }
+</script>
+
+<style is:global>
+  #sparkles-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+    overflow: visible;
+  }
+
+  #cursor-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 10000;
+  }
+
+  .cursor-star {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    left: -12px;
+    top: -12px;
+    background: white;
+    clip-path: polygon(
+      50% 0%,
+      61% 35%,
+      98% 35%,
+      68% 57%,
+      79% 91%,
+      50% 70%,
+      21% 91%,
+      32% 57%,
+      2% 35%,
+      39% 35%
+    );
+    will-change: transform;
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.8));
+    transform-style: preserve-3d;
+    backface-visibility: hidden;
+  }
+
+  .cursor-glow {
+    position: absolute;
+    width: 48px;
+    height: 48px;
+    left: -24px;
+    top: -24px;
+    background: radial-gradient(
+      circle,
+      rgba(255, 255, 255, 0.4) 0%,
+      rgba(255, 255, 255, 0.2) 50%,
+      transparent 70%
+    );
+    border-radius: 50%;
+    will-change: transform, opacity;
+    transform-style: preserve-3d;
+  }
+
+  .sparkle {
+    position: fixed;
+    width: 6px;
+    height: 6px;
+    background: white;
+    clip-path: polygon(
+      50% 0%,
+      61% 35%,
+      98% 35%,
+      68% 57%,
+      79% 91%,
+      50% 70%,
+      21% 91%,
+      32% 57%,
+      2% 35%,
+      39% 35%
+    );
+    pointer-events: none;
+    will-change: transform, opacity;
+    transform-style: preserve-3d;
+    backface-visibility: hidden;
+  }
+
+  body {
+    cursor: none !important;
+    overflow-x: hidden;
+  }
+
+  a,
+  button,
+  .hover-effect {
+    cursor: none !important;
+  }
+</style>

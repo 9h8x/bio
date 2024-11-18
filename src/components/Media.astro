@@ -1,0 +1,220 @@
+---
+// AudioPlayer.astro
+interface Props {
+  title?: string;
+}
+---
+
+<div class="bg-transparent text-white rounded-lg shadow-lg w-80 mx-auto outline outline-1 outline-white/10 p-4">
+  <h3 class="text-center">American Boy</h3>
+  <h3 class="text-center text-gray-500">Kanye West, Estelle</h3>
+  <div class="space-y-4">
+    <h3 class="text-center"></h3>
+    <audio
+      id="audio"
+      class="hidden"
+      src="/music/AmericanBoy.mp3"
+    ></audio>
+
+    <div class="flex items-center justify-between">
+      <button
+        id="audio-control"
+        class="text-white hover:text-gray-300 transition-colors"
+        aria-label="Play/Pause"
+      >
+        <svg
+          id="play-icon"
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <polygon points="5 3 19 12 5 21 5 3"></polygon>
+        </svg>
+        <svg
+          id="pause-icon"
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="hidden"
+        >
+          <rect x="6" y="4" width="4" height="16"></rect>
+          <rect x="14" y="4" width="4" height="16"></rect>
+        </svg>
+      </button>
+
+      <div class="flex-grow mx-4">
+        <input
+          type="range"
+          id="progress"
+          class="w-full h-2 bg-transparent rounded-full appearance-none cursor-pointer outline outline-white outline-1"
+          min="0"
+          max="100"
+          value="0"
+        />
+      </div>
+
+      <button
+        id="mute-control"
+        class="text-white hover:text-gray-300 transition-colors"
+        aria-label="Mute/Unmute"
+      >
+        <svg
+          id="volume-icon"
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+          <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+          <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+        </svg>
+        <svg
+          id="mute-icon"
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="hidden"
+        >
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+          <line x1="23" y1="9" x2="17" y2="15"></line>
+          <line x1="17" y1="9" x2="23" y2="15"></line>
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<style>
+  input[type="range"] {
+    background: linear-gradient(
+      to right,
+      white var(--progress, 0%),
+      transparent var(--progress, 0%)
+    );
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    background-color: rgb(255, 255, 255);
+    outline: 1px solid rgb(255, 255, 255);
+    border-radius: 50%;
+    cursor: pointer;
+  }
+
+  input[type="range"]::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    background-color: rgb(255, 255, 255);
+    outline: 1px solid rgb(255, 255, 255);
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+  }
+</style>
+
+<script>
+  const audioControl = document.getElementById("audio-control");
+  const playIcon = document.getElementById("play-icon");
+  const pauseIcon = document.getElementById("pause-icon");
+  const muteControl = document.getElementById("mute-control");
+  const volumeIcon = document.getElementById("volume-icon");
+  const muteIcon = document.getElementById("mute-icon");
+  const audio = document.getElementById("audio") as HTMLAudioElement;
+  const progressSlider = document.getElementById(
+    "progress"
+  ) as HTMLInputElement;
+
+  if (
+    audioControl &&
+    playIcon &&
+    pauseIcon &&
+    muteControl &&
+    volumeIcon &&
+    muteIcon &&
+    audio &&
+    progressSlider
+  ) {
+    let animationFrameId;
+
+    const updateProgressBar = () => {
+      if (audio.duration) {
+        const progress = (audio.currentTime / audio.duration) * 100;
+        progressSlider.value = progress.toString();
+        progressSlider.style.setProperty("--progress", `${progress}%`);
+      }
+      animationFrameId = requestAnimationFrame(updateProgressBar);
+    };
+
+    audioControl.addEventListener("click", () => {
+      if (audio.paused) {
+        audio.play().catch((error) => {
+          console.error("Playback failed:", error);
+        });
+      } else {
+        audio.pause();
+      }
+    });
+
+    audio.addEventListener("play", () => {
+      playIcon.classList.add("hidden");
+      pauseIcon.classList.remove("hidden");
+      animationFrameId = requestAnimationFrame(updateProgressBar);
+    });
+
+    audio.addEventListener("pause", () => {
+      playIcon.classList.remove("hidden");
+      pauseIcon.classList.add("hidden");
+      cancelAnimationFrame(animationFrameId);
+    });
+
+    audio.addEventListener("ended", () => {
+      cancelAnimationFrame(animationFrameId);
+      progressSlider.value = "0";
+      progressSlider.style.setProperty("--progress", "0%");
+    });
+
+    progressSlider.addEventListener("input", () => {
+      const progress = parseFloat(progressSlider.value);
+      audio.currentTime = (progress / 100) * audio.duration;
+      progressSlider.style.setProperty("--progress", `${progress}%`);
+    });
+
+    muteControl.addEventListener("click", () => {
+      audio.muted = !audio.muted;
+      if (audio.muted) {
+        volumeIcon.classList.add("hidden");
+        muteIcon.classList.remove("hidden");
+      } else {
+        volumeIcon.classList.remove("hidden");
+        muteIcon.classList.add("hidden");
+      }
+    });
+  }
+</script>

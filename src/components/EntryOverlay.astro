@@ -1,0 +1,66 @@
+---
+
+---
+
+<div
+  id="entry-overlay"
+  class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center cursor-pointer"
+>
+  <div class="text-center">
+    <div class="text-white text-2xl sm:text-4xl font-bold animate-pulse mb-4">
+      Click to Enter
+    </div>
+    <div class="text-white/60 text-sm sm:text-base">
+      Enable music
+    </div>
+  </div>
+</div>
+
+<script>
+  const overlay = document.getElementById("entry-overlay");
+  const audio = document.getElementById("audio") as HTMLAudioElement;
+
+  if (audio) {
+    // Ensure audio is initially paused and muted
+    audio.pause();
+    audio.currentTime = 0;
+    audio.muted = true;
+  }
+
+  overlay?.addEventListener("click", async () => {
+    try {
+      if (audio) {
+        // Unmute and play audio after user interaction
+        audio.muted = false;
+        await audio.play();
+      }
+
+      overlay.classList.add("fade-out");
+      setTimeout(() => {
+        overlay.remove();
+      }, 500);
+    } catch (error) {
+      console.error("Audio playback failed:", error);
+    }
+  });
+</script>
+
+<style>
+  .fade-out {
+    animation: fadeOut 0.5s forwards;
+  }
+
+  @keyframes fadeOut {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+
+  #entry-overlay {
+    animation: fadeIn 0.5s forwards;
+    font-family: Consolas, monaco, monospace;
+  }
+</style>
